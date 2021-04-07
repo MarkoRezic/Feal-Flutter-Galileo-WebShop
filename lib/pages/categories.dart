@@ -1,9 +1,6 @@
 import 'dart:ui';
 
 import 'package:dio/dio.dart' as Dio;
-import 'package:feal_app/pages/apparel.dart';
-import 'package:feal_app/pages/computers.dart';
-import 'package:feal_app/pages/digital.dart';
 import 'package:feal_app/pages/category_products.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart' as DotEnv;
@@ -15,14 +12,14 @@ class Categories extends StatefulWidget {
 
 class _CategoriesState extends State<Categories> {
   List<Widget> categoryWidgets = [];
-  Future<String> getCategories() async {
+  Future<List> getCategories() async {
     var dio = Dio.Dio();
     String APIUrl =
         'http://shop.galileo.ba/api/categories?fields=name%2C%20localized_name%2C%20image%2C%20id';
     dio.options.headers["Authorization"] = 'Bearer ' + DotEnv.env['AUTHORIZATION_TOKEN'].toString();
     final response = await dio.get(APIUrl);
     categoryWidgets = getCategoryWidgets(response.data["categories"]);
-    return response.data.toString();
+    return response.data["categories"];
   }
 
   List getCategoryWidgets(value) {
@@ -85,8 +82,8 @@ class _CategoriesState extends State<Categories> {
 
   @override
   void initState() {
-    getCategories().then((value) => () {
-          print(value);
+    getCategories().then((value) {
+          //print(value.length.toString() + ' categories');
         });
     super.initState();
   }

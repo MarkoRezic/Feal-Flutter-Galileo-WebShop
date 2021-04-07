@@ -1,9 +1,7 @@
 import 'package:dio/dio.dart' as Dio;
-import 'package:feal_app/components/horizontal_listview.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart' as DotEnv;
-//import 'package:html/dom.dart';
 
 class ExpandedProductGrid extends StatefulWidget {
   @override
@@ -50,9 +48,7 @@ class _ExpandedProductGridState extends State<ExpandedProductGrid> {
 
   @override
   void initState() {
-    getProducts().then((value) => () {
-          print(value);
-        });
+    getProducts();
     super.initState();
   }
 
