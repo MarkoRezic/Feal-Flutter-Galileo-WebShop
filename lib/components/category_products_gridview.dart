@@ -1,7 +1,9 @@
 import 'package:dio/dio.dart' as Dio;
+import 'package:feal_app/providers/wishlist_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart' as DotEnv;
+import 'package:provider/provider.dart';
 
 class ExpandedProductGrid extends StatefulWidget {
   @override
@@ -18,7 +20,8 @@ class _ExpandedProductGridState extends State<ExpandedProductGrid> {
     String APIUrl = 'http://shop.galileo.ba/api/products?categoryId=' +
         this.widget.category_id.toString() +
         '&fields=name%2C%20price%2C%20localized_names%2C%20images%2C%20id%2C%20categoryId%2C%20short_description%2C%20full_description';
-    dio.options.headers["Authorization"] = 'Bearer ' + DotEnv.env['AUTHORIZATION_TOKEN'].toString();
+    dio.options.headers["Authorization"] =
+        'Bearer ' + DotEnv.env['AUTHORIZATION_TOKEN'].toString();
     final response = await dio.get(APIUrl);
     productWidgets =
         getProductWidgets(response.data["products"], this.widget.category_name);
@@ -39,8 +42,12 @@ class _ExpandedProductGridState extends State<ExpandedProductGrid> {
         product_id: value[i]["id"].toString(),
         category_name: this.widget.category_name,
         price: value[i]["price"].toString(),
-        short_description: value[i]["short_description"] != null ? value[i]["short_description"].toString() : '',
-        full_description: value[i]["full_description"] != null ? value[i]["full_description"].toString() : '',
+        short_description: value[i]["short_description"] != null
+            ? value[i]["short_description"].toString()
+            : '',
+        full_description: value[i]["full_description"] != null
+            ? value[i]["full_description"].toString()
+            : '',
       ));
     }
     return newProductWidgets;
@@ -166,59 +173,98 @@ class ProductDetails extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final WishlistProvider wishlistProvider =
+        Provider.of<WishlistProvider>(context);
+
     return Scaffold(
       appBar: new AppBar(
-        elevation: 0.1,
+        elevation: 5,
         backgroundColor: Colors.blueGrey,
         title: Text(
           this.category_name,
           style: new TextStyle(color: Colors.white),
         ),
         actions: <Widget>[
-          new IconButton(
-              icon: Icon(
-                Icons.favorite_border,
-                color: Colors.white,
-              ),
-              onPressed: () {})
+          ToggleIconButton(
+            initialState: wishlistProvider.productList.contains(product_id),
+            product_id: product_id,
+            icon: Icon(
+                  Icons.favorite_border,
+                  color: Colors.white,
+                ),
+                iconPressed: Icon(
+                  Icons.favorite,
+                  color: Colors.white,
+                ),
+          ),
         ],
       ),
       body: new Column(children: [
         Container(
-            padding: EdgeInsets.all(10.0),
-            height: 200,
-            child: Image.asset(image_location, fit: BoxFit.fill)),
+          padding: EdgeInsets.all(10.0),
+          height: 200,
+          child: Image.asset(image_location, fit: BoxFit.fill),
+        ),
         Container(
-            padding: EdgeInsets.all(15.0),
-            child: ExpandableText(
-              text: product_name,
-              textStyle: new TextStyle(fontSize: 30.0),
-              maxLines: 1,
-            )),
+          padding: EdgeInsets.all(15.0),
+          color: Color(0x557C809B),
+          child: ExpandableText(
+            text: product_name,
+            textStyle: new TextStyle(fontSize: 30.0),
+            maxLines: 1,
+          ),
+        ),
         Container(
-            padding: EdgeInsets.all(15.0),
-            child: ExpandableText(
-              text: price + ' KM',
-              textStyle: new TextStyle(fontSize: 30.0, fontWeight: FontWeight.bold),
-              maxLines: 1,
-            )),
+          padding: EdgeInsets.all(15.0),
+          child:
+              Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+            Text(
+              price + ' KM',
+              style: new TextStyle(fontSize: 30.0, fontWeight: FontWeight.bold),
+            ),
+            ElevatedButton(
+              onPressed: () {},
+              style: ButtonStyle(
+                padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
+                    EdgeInsets.all(15.0)),
+                backgroundColor:
+                    MaterialStateProperty.all<Color>(Colors.blueGrey),
+              ),
+              child: Row(children: [
+                Text(
+                  'Add to cart ',
+                  style: new TextStyle(
+                      fontSize: 25.0, fontWeight: FontWeight.bold),
+                ),
+                Icon(
+                  Icons.shopping_cart_outlined,
+                ),
+              ]),
+            ),
+          ]),
+        ),
         Container(
-            padding: EdgeInsets.all(15.0),
-            child: ExpandableText(
-              text: short_description,
-              textStyle: new TextStyle(fontSize: 20.0),
-              maxLines: 1,
-            )),
+          color: Color(0x557C809B),
+          padding: EdgeInsets.all(15.0),
+          child: ExpandableText(
+            text: short_description,
+            textStyle: new TextStyle(fontSize: 20.0),
+            maxLines: 1,
+          ),
+        ),
         Expanded(
-            child: Container(
-                child: ListView(scrollDirection: Axis.vertical, children: [
-          Container(
-              padding: EdgeInsets.all(15.0),
-              child: Html(
-                data: """ """+ full_description +""" """,
-
-              ))
-        ])))
+          child: Container(
+            color: Color(0x187C809B),
+            child: ListView(scrollDirection: Axis.vertical, children: [
+              Container(
+                padding: EdgeInsets.all(15.0),
+                child: Html(
+                  data: """ """ + full_description + """ """,
+                ),
+              ),
+            ]),
+          ),
+        ),
       ]),
     );
   }
@@ -253,4 +299,50 @@ class _ExpandableTextState extends State<ExpandableText> {
           maxLines: _isExpanded ? 20 : widget.maxLines,
         ),
       );
+}
+
+class ToggleIconButton extends StatefulWidget {
+  final bool initialState;
+  final String product_id;
+  final Icon icon;
+  final Icon iconPressed;
+
+  ToggleIconButton(
+      {this.initialState,
+      this.product_id,
+      this.icon,
+      this.iconPressed});
+
+  @override
+  _ToggleIconButtonState createState() => _ToggleIconButtonState();
+}
+
+class _ToggleIconButtonState extends State<ToggleIconButton> {
+  bool _isPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    final WishlistProvider wishlistProvider =
+        Provider.of<WishlistProvider>(context);
+
+    return InkWell(
+      child: IconButton(
+        icon: _isPressed ? widget.iconPressed : widget.icon,
+        onPressed: () {
+          setState(() {
+            if (_isPressed) wishlistProvider.removeItem(widget.product_id);
+            else wishlistProvider.addItem(widget.product_id);
+            _isPressed = !_isPressed;
+          });
+        },
+      ) ,
+
+    );
+  }
+
+  @override
+  void initState() {
+    _isPressed = widget.initialState;
+    super.initState();
+  }
 }

@@ -27,6 +27,7 @@ dependencies:
   dio: ^4.0.0
   flutter_html: ^0.8.2
   flutter_dotenv: ^3.1.0
+  provider:
 
 
   # The following adds the Cupertino Icons font to your application.
@@ -126,6 +127,43 @@ flutter:
     - images/categories/multi-tool/76.jpg
     - images/categories/multi-tool/78.jpg
     - images/categories/battery lamp/80.jpg
+    - images/categories/all products/1.jpg
+    - images/categories/all products/3.jpg
+    - images/categories/all products/4.jpg
+    - images/categories/all products/5.jpg
+    - images/categories/all products/7.jpg
+    - images/categories/all products/8.jpg
+    - images/categories/all products/9.jpg
+    - images/categories/all products/11.jpg
+    - images/categories/all products/12.jpg
+    - images/categories/all products/13.jpg
+    - images/categories/all products/14.jpg
+    - images/categories/all products/15.jpg
+    - images/categories/all products/30.jpg
+    - images/categories/all products/32.jpg
+    - images/categories/all products/35.jpg
+    - images/categories/all products/37.jpg
+    - images/categories/all products/38.jpg
+    - images/categories/all products/39.jpg
+    - images/categories/all products/41.jpg
+    - images/categories/all products/42.jpg
+    - images/categories/all products/43.jpg
+    - images/categories/all products/44.jpg
+    - images/categories/all products/45.jpg
+    - images/categories/all products/46.jpg
+    - images/categories/all products/56.jpg
+    - images/categories/all products/58.jpg
+    - images/categories/all products/60.jpg
+    - images/categories/all products/62.jpg
+    - images/categories/all products/64.jpg
+    - images/categories/all products/67.jpg
+    - images/categories/all products/68.jpg
+    - images/categories/all products/70.jpg
+    - images/categories/all products/72.jpg
+    - images/categories/all products/74.jpg
+    - images/categories/all products/76.jpg
+    - images/categories/all products/78.jpg
+    - images/categories/all products/80.jpg
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.

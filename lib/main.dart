@@ -1,5 +1,6 @@
 import 'package:feal_app/pages/login.dart';
 import 'package:feal_app/pages/register.dart';
+import 'package:feal_app/providers/wishlist_provider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:carousel_pro/carousel_pro.dart';
@@ -10,13 +11,26 @@ import 'package:feal_app/pages/cart.dart';
 import 'package:feal_app/pages/wishlist.dart';
 import 'package:feal_app/pages/categories.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart' as DotEnv;
+import 'package:provider/provider.dart';
 
 Future main() async {
   await DotEnv.load();
-  runApp(MaterialApp(
-    debugShowCheckedModeBanner: false,
-    home: HomePage(),
-  ));
+  runApp(GalileoApp());
+}
+
+class GalileoApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider<WishlistProvider>.value(value: WishlistProvider()),
+      ],
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        home: HomePage(),
+      ),
+    );
+  }
 }
 
 class HomePage extends StatefulWidget {
@@ -27,6 +41,9 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
+    final WishlistProvider wishlistProvider =
+    Provider.of<WishlistProvider>(context);
+
     Widget image_carousel = new Container(
       height: 200.0,
       child: new Carousel(
@@ -76,8 +93,10 @@ class _HomePageState extends State<HomePage> {
                         title: Container(
                           child: new Text(
                             "Register or Log In \n if you already have account.",
-                            style:
-                                TextStyle(color: Colors.white70, fontSize: 20.0,fontWeight: FontWeight.bold),
+                            style: TextStyle(
+                                color: Colors.white70,
+                                fontSize: 20.0,
+                                fontWeight: FontWeight.bold),
                           ),
                         ),
                         actions: [
@@ -90,8 +109,11 @@ class _HomePageState extends State<HomePage> {
                                     child: FlatButton(
                                         splashColor: Colors.blueGrey,
                                         onPressed: () {
-                                          Navigator.push(context,
-                                              MaterialPageRoute(builder: (context) => new Register()));
+                                          Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      new Register()));
                                         },
                                         child: Text(
                                           'Register',
@@ -113,10 +135,12 @@ class _HomePageState extends State<HomePage> {
                                   child: Container(
                                     child: FlatButton(
                                         splashColor: Colors.blueGrey,
-
                                         onPressed: () {
-                                          Navigator.push(context,
-                                              MaterialPageRoute(builder: (context) => new LoginPage()));
+                                          Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      new LoginPage()));
                                         },
                                         child: Text(
                                           'Log In',
@@ -141,11 +165,8 @@ class _HomePageState extends State<HomePage> {
                         elevation: 20.0,
                         backgroundColor: Colors.blueGrey,
                         shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(25.0))
-                        ),
-
-
-
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(25.0))),
                       );
                     });
               }),
@@ -156,7 +177,9 @@ class _HomePageState extends State<HomePage> {
               ),
               onPressed: () {
                 Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => new Wishlist()));
+                    MaterialPageRoute(builder: (context) => new Wishlist(
+                      product_ids: wishlistProvider.productList,
+                    )));
               }),
           new IconButton(
               icon: Icon(
@@ -449,12 +472,13 @@ class _HomePageState extends State<HomePage> {
                     padding: const EdgeInsets.all(14.0),
                     child: Container(
                       alignment: Alignment.center,
-                      child: new Text('Recent products',
-                          style: new TextStyle(
-                            color: Colors.white,
-                            fontSize: 22.0,
-                            fontWeight: FontWeight.bold,
-                          ),
+                      child: new Text(
+                        'Recent products',
+                        style: new TextStyle(
+                          color: Colors.white,
+                          fontSize: 22.0,
+                          fontWeight: FontWeight.bold,
+                        ),
                         //textAlign: TextAlign.center,
                       ),
                     ),

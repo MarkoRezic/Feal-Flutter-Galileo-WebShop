@@ -105,12 +105,6 @@ class _CategoriesState extends State<Categories> {
               actions: <Widget>[
                 new IconButton(
                     icon: Icon(
-                      Icons.favorite_border,
-                      color: Colors.white,
-                    ),
-                    onPressed: () {}),
-                new IconButton(
-                    icon: Icon(
                       Icons.search,
                       color: Colors.white,
                     ),
