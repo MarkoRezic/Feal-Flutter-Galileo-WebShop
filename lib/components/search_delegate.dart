@@ -35,12 +35,6 @@ class ProductSearch extends SearchDelegate {
 
   @override
   Widget buildResults(BuildContext context) {
-    // TODO: implement buildResults
-    throw UnimplementedError();
-  }
-
-  @override
-  Widget buildSuggestions(BuildContext context) {
     final suggestionList =
         query.isEmpty ? recentProducts : generateNameImageIdList(allProducts);
 
@@ -76,6 +70,45 @@ class ProductSearch extends SearchDelegate {
     );
   }
 
+  @override
+  Widget buildSuggestions(BuildContext context) {
+    final suggestionList =
+        query.isEmpty ? recentProducts : generateNameImageIdList(allProducts);
+
+    return ListView.builder(
+      itemBuilder: (context, index) => suggestionList.length > 0
+          ? ListTile(
+              leading: Image.asset(
+                "images/categories/all products/" +
+                    suggestionList[index].split(":")[1].toString() +
+                    ".jpg",
+                fit: BoxFit.fitHeight,
+                width: 50,
+              ),
+              title: RichText(
+                text: TextSpan(
+                  style: TextStyle(
+                    color: Colors.grey,
+                  ),
+                  children: highlightOccurrences(
+                      suggestionList[index].split(":")[0], query),
+                ),
+              ),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => selectedProduct(
+                        suggestionList[index].split(":")[2].toString()),
+                  ),
+                );
+              },
+            )
+          : Text('No results'),
+      itemCount: suggestionList.length,
+    );
+  }
+
   List<String> generateNameImageIdList(allProducts) {
     List<String> nameImageIdList = [];
     for (int i = 0; i < allProducts.length; i++) {
@@ -87,10 +120,12 @@ class ProductSearch extends SearchDelegate {
     }
     List<String> sortedList = nameImageIdList
         .where((product) =>
-        product.split(":")[0].toLowerCase().contains(query.toLowerCase()))
+            product.split(":")[0].toLowerCase().contains(query.toLowerCase()))
         .toList();
-    sortedList.sort((a,b)=> b.compareTo(a));
-    sortedList.sort((a,b)=> a.toLowerCase().indexOf(query.toLowerCase()) - b.toLowerCase().indexOf(query.toLowerCase()));
+    sortedList.sort((a, b) => b.compareTo(a));
+    sortedList.sort((a, b) =>
+        a.toLowerCase().indexOf(query.toLowerCase()) -
+        b.toLowerCase().indexOf(query.toLowerCase()));
     return sortedList;
   }
 
