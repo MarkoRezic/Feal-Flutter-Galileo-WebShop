@@ -135,17 +135,19 @@ class WishTile extends StatelessWidget {
       child: InkWell(
         onTap: () {
           Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (context) => new ProductDetails(
-                        image_location: this.image_location,
-                        product_name: this.product_name,
-                        product_id: this.product_id,
-                        category_name: this.category_name,
-                        price: this.price,
-                        short_description: this.short_description,
-                        full_description: this.full_description,
-                      )));
+            context,
+            MaterialPageRoute(
+              builder: (context) => new ProductDetails(
+                image_location: this.image_location,
+                product_name: this.product_name,
+                product_id: this.product_id,
+                category_name: '',
+                price: this.price,
+                short_description: this.short_description,
+                full_description: this.full_description,
+              ),
+            ),
+          );
         },
         child: Container(
           height: 90,
@@ -157,15 +159,17 @@ class WishTile extends StatelessWidget {
                 width: 90,
               ),
               Expanded(
-                child:
-              Text(
-                this.product_name,
-                style: TextStyle(
-                  fontSize: 20.0,
-                  fontWeight: FontWeight.bold,
+                child: Padding(
+                  padding: EdgeInsets.all(8.0),
+                  child: Text(
+                    this.product_name,
+                    style: TextStyle(
+                      fontSize: 20.0,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
-                overflow: TextOverflow.ellipsis,
-              ),
               ),
             ],
           ),

@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:dio/dio.dart' as Dio;
 import 'package:feal_app/providers/wishlist_provider.dart';
 import 'package:flutter/material.dart';
@@ -142,7 +144,9 @@ class ProductTile extends StatelessWidget {
                 image_caption,
                 overflow: TextOverflow.ellipsis,
                 maxLines: 3,
-                style: new TextStyle(fontSize: 15.0),
+                style: new TextStyle(
+                  fontSize: 15.0,
+                ),
                 textAlign: TextAlign.center,
               ),
             ),
@@ -153,11 +157,11 @@ class ProductTile extends StatelessWidget {
   }
 }
 
-class ProductDetails extends StatelessWidget {
+class ProductDetails extends StatefulWidget {
   final String image_location;
   final String product_name;
   final String product_id;
-  final String category_name;
+  String category_name = '';
   final String price;
   final String short_description;
   final String full_description;
@@ -172,101 +176,149 @@ class ProductDetails extends StatelessWidget {
       this.full_description});
 
   @override
+  _ProductDetailsState createState() => _ProductDetailsState();
+}
+
+class _ProductDetailsState extends State<ProductDetails> {
+  Future<String> getCategoryName() async {
+    if (widget.category_name.length == 0) {
+      var dio = Dio.Dio();
+      String APIUrl = 'http://shop.galileo.ba/api/categories?productId=' +
+          widget.product_id +
+          '&fields=name';
+      dio.options.headers["Authorization"] =
+          'Bearer ' + DotEnv.env['AUTHORIZATION_TOKEN'].toString();
+      final response = await dio.get(APIUrl);
+      widget.category_name = response.data["categories"].length > 0 ? response.data["categories"][0]["name"].toString() : '';
+      return response.data.toString();
+    } else
+      return 'categories already set';
+  }
+
+  @override
+  void initState() {
+    getCategoryName();
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final WishlistProvider wishlistProvider =
         Provider.of<WishlistProvider>(context);
 
-    return Scaffold(
-      appBar: new AppBar(
-        elevation: 5,
-        backgroundColor: Colors.blueGrey,
-        title: Text(
-          this.category_name,
-          style: new TextStyle(color: Colors.white),
-        ),
-        actions: <Widget>[
-          ToggleIconButton(
-            initialState: wishlistProvider.productList.contains(product_id),
-            product_id: product_id,
-            icon: Icon(
-                  Icons.favorite_border,
-                  color: Colors.white,
-                ),
-                iconPressed: Icon(
-                  Icons.favorite,
-                  color: Colors.white,
-                ),
-          ),
-        ],
-      ),
-      body: new Column(children: [
-        Container(
-          padding: EdgeInsets.all(10.0),
-          height: 200,
-          child: Image.asset(image_location, fit: BoxFit.fill),
-        ),
-        Container(
-          padding: EdgeInsets.all(15.0),
-          color: Color(0x557C809B),
-          child: ExpandableText(
-            text: product_name,
-            textStyle: new TextStyle(fontSize: 30.0),
-            maxLines: 1,
-          ),
-        ),
-        Container(
-          padding: EdgeInsets.all(15.0),
-          child:
-              Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-            Text(
-              price + ' KM',
-              style: new TextStyle(fontSize: 30.0, fontWeight: FontWeight.bold),
-            ),
-            ElevatedButton(
-              onPressed: () {},
-              style: ButtonStyle(
-                padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
-                    EdgeInsets.all(15.0)),
-                backgroundColor:
-                    MaterialStateProperty.all<Color>(Colors.blueGrey),
+    return FutureBuilder(
+        future: getCategoryName(),
+        builder: (context, snapshot) {
+          return Scaffold(
+            appBar: new AppBar(
+              elevation: 5,
+              backgroundColor: Colors.blueGrey,
+              title: Text(
+                widget.category_name,
+                style: new TextStyle(color: Colors.white),
               ),
-              child: Row(children: [
-                Text(
-                  'Add to cart ',
-                  style: new TextStyle(
-                      fontSize: 25.0, fontWeight: FontWeight.bold),
+              actions: <Widget>[
+                ToggleIconButton(
+                  initialState:
+                      wishlistProvider.productList.contains(widget.product_id),
+                  product_id: widget.product_id,
+                  icon: Icon(
+                    Icons.favorite_border,
+                    color: Colors.white,
+                  ),
+                  iconPressed: Icon(
+                    Icons.favorite,
+                    color: Colors.white,
+                  ),
                 ),
-                Icon(
-                  Icons.shopping_cart_outlined,
-                ),
-              ]),
+              ],
             ),
-          ]),
-        ),
-        Container(
-          color: Color(0x557C809B),
-          padding: EdgeInsets.all(15.0),
-          child: ExpandableText(
-            text: short_description,
-            textStyle: new TextStyle(fontSize: 20.0),
-            maxLines: 1,
-          ),
-        ),
-        Expanded(
-          child: Container(
-            color: Color(0x187C809B),
-            child: ListView(scrollDirection: Axis.vertical, children: [
-              Container(
-                padding: EdgeInsets.all(15.0),
-                child: Html(
-                  data: """ """ + full_description + """ """,
-                ),
-              ),
-            ]),
-          ),
-        ),
-      ]),
-    );
+            body: snapshot.hasData
+                ? new Column(children: [
+                    Container(
+                      padding: EdgeInsets.all(10.0),
+                      height: 200,
+                      child:
+                          Image.asset(widget.image_location, fit: BoxFit.fill),
+                    ),
+                    Container(
+                      width: double.infinity,
+                      padding: EdgeInsets.all(15.0),
+                      color: Color(0x557C809B),
+                      alignment: Alignment.center,
+                      child: ExpandableText(
+                        text: widget.product_name,
+                        textStyle: new TextStyle(fontSize: 30.0),
+                        maxLines: 1,
+                      ),
+                    ),
+                    Container(
+                      padding: EdgeInsets.all(15.0),
+                      child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              widget.price + ' KM',
+                              style: new TextStyle(
+                                  fontSize: 30.0, fontWeight: FontWeight.bold),
+                            ),
+                            ElevatedButton(
+                              onPressed: () {},
+                              style: ButtonStyle(
+                                padding: MaterialStateProperty.all<
+                                    EdgeInsetsGeometry>(EdgeInsets.all(15.0)),
+                                backgroundColor:
+                                    MaterialStateProperty.all<Color>(
+                                        Colors.blueGrey),
+                              ),
+                              child: Row(children: [
+                                Text(
+                                  'Add to cart ',
+                                  style: new TextStyle(
+                                      fontSize: 25.0,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                                Icon(
+                                  Icons.shopping_cart_outlined,
+                                ),
+                              ]),
+                            ),
+                          ]),
+                    ),
+                    Container(
+                      width: double.infinity,
+                      padding: EdgeInsets.all(15.0),
+                      color: Color(0x557C809B),
+                      alignment: Alignment.center,
+                      child: ExpandableText(
+                        text: widget.short_description,
+                        textStyle: new TextStyle(fontSize: 20.0),
+                        maxLines: 1,
+                      ),
+                    ),
+                    Expanded(
+                      child: Container(
+                        color: Color(0x187C809B),
+                        child:
+                            ListView(scrollDirection: Axis.vertical, children: [
+                          Container(
+                            padding: EdgeInsets.all(15.0),
+                            child: Html(
+                              data: """ """ + widget.full_description + """ """,
+                            ),
+                          ),
+                        ]),
+                      ),
+                    ),
+                  ])
+                : snapshot.hasError
+                    ? Text('An error has occurred')
+                    : Container(
+                        alignment: Alignment.center,
+                        child: CircularProgressIndicator(),
+                      ),
+          );
+        });
   }
 }
 
@@ -308,10 +360,7 @@ class ToggleIconButton extends StatefulWidget {
   final Icon iconPressed;
 
   ToggleIconButton(
-      {this.initialState,
-      this.product_id,
-      this.icon,
-      this.iconPressed});
+      {this.initialState, this.product_id, this.icon, this.iconPressed});
 
   @override
   _ToggleIconButtonState createState() => _ToggleIconButtonState();
@@ -330,13 +379,14 @@ class _ToggleIconButtonState extends State<ToggleIconButton> {
         icon: _isPressed ? widget.iconPressed : widget.icon,
         onPressed: () {
           setState(() {
-            if (_isPressed) wishlistProvider.removeItem(widget.product_id);
-            else wishlistProvider.addItem(widget.product_id);
+            if (_isPressed)
+              wishlistProvider.removeItem(widget.product_id);
+            else
+              wishlistProvider.addItem(widget.product_id);
             _isPressed = !_isPressed;
           });
         },
-      ) ,
-
+      ),
     );
   }
 
